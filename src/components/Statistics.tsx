@@ -4,6 +4,8 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { CheckCircle2, Circle, Trophy, TrendingUp } from 'lucide-react';
 
+import { motion } from 'motion/react';
+
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 interface StatisticsProps {
@@ -15,6 +17,21 @@ export default function Statistics({ tasks }: StatisticsProps) {
   const pendingCount = tasks.filter(t => !t.completed).length;
   const totalCount = tasks.length;
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    show: { opacity: 1, scale: 1 }
+  };
 
   const doughnutData = {
     labels: ['Selesai', 'Belum Selesai'],
@@ -104,42 +121,62 @@ export default function Statistics({ tasks }: StatisticsProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      initial="hidden"
+      animate="show"
+      variants={containerVariants}
+      className="space-y-8"
+    >
       <header>
-        <h2 className="text-3xl font-display font-bold text-slate-900 dark:text-white">Statistik Produktivitas</h2>
-        <p className="text-slate-500 dark:text-slate-400">Pantau kemajuan belajarmu secara visual.</p>
+        <motion.h2 variants={itemVariants} className="text-3xl font-display font-bold text-slate-900 dark:text-white">Statistik Produktivitas</motion.h2>
+        <motion.p variants={itemVariants} className="text-slate-500 dark:text-slate-400">Pantau kemajuan belajarmu secara visual.</motion.p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm md:col-span-1 flex flex-col items-center justify-center text-center">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ scale: 1.02 }}
+          className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm md:col-span-1 flex flex-col items-center justify-center text-center"
+        >
           <div className="relative w-48 h-48 mb-6">
             <Doughnut data={doughnutData} options={options} />
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-4xl font-display font-bold text-slate-900 dark:text-white">{completionRate}%</span>
+              <motion.span 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: 'spring' }}
+                className="text-4xl font-display font-bold text-slate-900 dark:text-white"
+              >
+                {completionRate}%
+              </motion.span>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selesai</span>
             </div>
           </div>
           <div className="space-y-2 w-full">
-            <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
+            <motion.div whileHover={{ x: 5 }} className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Selesai</span>
               </div>
               <span className="font-bold text-emerald-700 dark:text-emerald-400">{completedCount}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-2xl">
+            </motion.div>
+            <motion.div whileHover={{ x: 5 }} className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-2xl">
               <div className="flex items-center gap-2">
                 <Circle className="w-4 h-4 text-amber-600" />
                 <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Belum</span>
               </div>
               <span className="font-bold text-amber-700 dark:text-amber-400">{pendingCount}</span>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="md:col-span-2 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-primary-600 to-blue-700 p-6 rounded-3xl text-white shadow-lg shadow-primary-500/20">
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ scale: 1.05, rotate: 1 }}
+              className="bg-gradient-to-br from-primary-600 to-blue-700 p-6 rounded-3xl text-white shadow-lg shadow-primary-500/20"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
                   <Trophy className="w-6 h-6 text-white" />
@@ -151,8 +188,12 @@ export default function Statistics({ tasks }: StatisticsProps) {
                  completionRate >= 50 ? 'Bagus! Sedikit lagi menuju target.' : 
                  'Ayo semangat! Selesaikan tugasmu satu per satu.'}
               </p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            </motion.div>
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ scale: 1.05, rotate: -1 }}
+              className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-primary-50 dark:bg-primary-900/30 rounded-xl">
                   <TrendingUp className="w-6 h-6 text-primary-600" />
@@ -161,10 +202,13 @@ export default function Statistics({ tasks }: StatisticsProps) {
               </div>
               <p className="text-4xl font-display font-bold text-slate-900 dark:text-white">{totalCount}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Tugas terdaftar di sistem</p>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm h-64">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm h-64"
+          >
             <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Tugas per Mata Pelajaran</h4>
             {Object.keys(subjectStats).length > 0 ? (
               <Bar data={barData} options={barOptions} />
@@ -173,9 +217,9 @@ export default function Statistics({ tasks }: StatisticsProps) {
                 <p className="text-slate-400 text-sm italic">Belum ada data mata pelajaran</p>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

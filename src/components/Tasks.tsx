@@ -57,28 +57,51 @@ export default function Tasks({ tasks, onAddTask, onToggleTask, onDeleteTask }: 
     Low: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial="hidden"
+      animate="show"
+      variants={containerVariants}
+      className="space-y-6"
+    >
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <motion.div variants={itemVariants}>
           <h2 className="text-3xl font-display font-bold text-slate-900 dark:text-white">Daftar Tugas</h2>
           <p className="text-slate-500 dark:text-slate-400">Kelola semua tugas sekolahmu di sini.</p>
-        </div>
-        <button 
+        </motion.div>
+        <motion.button 
+          variants={itemVariants}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setIsAdding(!isAdding)}
           className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-2xl font-semibold shadow-lg shadow-primary-500/20 transition-all active:scale-95"
         >
           {isAdding ? <X size={20} /> : <Plus size={20} />}
           {isAdding ? 'Batal' : 'Tambah Tugas'}
-        </button>
+        </motion.button>
       </header>
 
       <AnimatePresence>
         {isAdding && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
             className="overflow-hidden"
           >
             <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
@@ -138,112 +161,108 @@ export default function Tasks({ tasks, onAddTask, onToggleTask, onDeleteTask }: 
                   </div>
                 </div>
               </div>
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
               >
                 Simpan Tugas
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        <button 
-          onClick={() => setFilter('all')}
-          className={cn(
-            "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
-            filter === 'all' ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800"
-          )}
-        >
-          Semua
-        </button>
-        <button 
-          onClick={() => setFilter('pending')}
-          className={cn(
-            "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
-            filter === 'pending' ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800"
-          )}
-        >
-          Belum Selesai
-        </button>
-        <button 
-          onClick={() => setFilter('completed')}
-          className={cn(
-            "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
-            filter === 'completed' ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800"
-          )}
-        >
-          Selesai
-        </button>
-      </div>
+      <motion.div variants={itemVariants} className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {['all', 'pending', 'completed'].map((f) => (
+          <button 
+            key={f}
+            onClick={() => setFilter(f as any)}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
+              filter === f ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800"
+            )}
+          >
+            {f === 'all' ? 'Semua' : f === 'pending' ? 'Belum Selesai' : 'Selesai'}
+          </button>
+        ))}
+      </motion.div>
 
-      <div className="grid grid-cols-1 gap-3">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => (
-            <motion.div
-              layout
-              key={task.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "bg-white dark:bg-slate-900 p-4 rounded-2xl border transition-all flex items-center gap-4 group shadow-sm",
-                task.completed ? "opacity-60 border-slate-100 dark:border-slate-800" : "border-slate-200 dark:border-slate-800 hover:border-primary-300 dark:hover:border-primary-700"
-              )}
-            >
-              <button 
-                onClick={() => onToggleTask(task.id)}
+      <motion.div layout className="grid grid-cols-1 gap-3">
+        <AnimatePresence mode="popLayout">
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task) => (
+              <motion.div
+                layout
+                key={task.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                whileHover={{ x: 5 }}
                 className={cn(
-                  "flex-shrink-0 transition-colors",
-                  task.completed ? "text-emerald-500" : "text-slate-300 hover:text-primary-500"
+                  "bg-white dark:bg-slate-900 p-4 rounded-2xl border transition-all flex items-center gap-4 group shadow-sm",
+                  task.completed ? "opacity-60 border-slate-100 dark:border-slate-800" : "border-slate-200 dark:border-slate-800 hover:border-primary-300 dark:hover:border-primary-700"
                 )}
               >
-                {task.completed ? <CheckCircle2 size={28} /> : <Circle size={28} />}
-              </button>
-              
-              <div className={cn("w-1.5 h-12 rounded-full flex-shrink-0", priorityColors[task.priority])} />
-              
-              <div className="flex-1 min-w-0">
-                <h4 className={cn(
-                  "font-bold text-slate-900 dark:text-white truncate",
-                  task.completed && "line-through text-slate-400"
-                )}>
-                  {task.title}
-                </h4>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{task.subject}</span>
-                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                    <CalendarIcon size={12} />
-                    {format(parseISO(task.deadline), 'd MMM yyyy')}
+                <motion.button 
+                  whileTap={{ scale: 1.5 }}
+                  onClick={() => onToggleTask(task.id)}
+                  className={cn(
+                    "flex-shrink-0 transition-colors",
+                    task.completed ? "text-emerald-500" : "text-slate-300 hover:text-primary-500"
+                  )}
+                >
+                  {task.completed ? <CheckCircle2 size={28} /> : <Circle size={28} />}
+                </motion.button>
+                
+                <div className={cn("w-1.5 h-12 rounded-full flex-shrink-0", priorityColors[task.priority])} />
+                
+                <div className="flex-1 min-w-0">
+                  <h4 className={cn(
+                    "font-bold text-slate-900 dark:text-white truncate",
+                    task.completed && "line-through text-slate-400"
+                  )}>
+                    {task.title}
+                  </h4>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{task.subject}</span>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                    <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                      <CalendarIcon size={12} />
+                      {format(parseISO(task.deadline), 'd MMM yyyy')}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-3">
-                <span className={cn("hidden sm:inline-block text-[10px] font-bold uppercase px-2 py-1 rounded-md", priorityBadges[task.priority])}>
-                  {task.priority === 'High' ? 'Tinggi' : task.priority === 'Medium' ? 'Sedang' : 'Rendah'}
-                </span>
-                <button 
-                  onClick={() => onDeleteTask(task.id)}
-                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                >
-                  <Trash2 size={20} />
-                </button>
+                <div className="flex items-center gap-3">
+                  <span className={cn("hidden sm:inline-block text-[10px] font-bold uppercase px-2 py-1 rounded-md", priorityBadges[task.priority])}>
+                    {task.priority === 'High' ? 'Tinggi' : task.priority === 'Medium' ? 'Sedang' : 'Rendah'}
+                  </span>
+                  <button 
+                    onClick={() => onDeleteTask(task.id)}
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl p-12 text-center"
+            >
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <CheckSquare className="w-8 h-8 text-slate-300" />
               </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Belum Ada Tugas</h3>
+              <p className="text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">Klik tombol "Tambah Tugas" untuk mulai mencatat tugas sekolahmu.</p>
             </motion.div>
-          ))
-        ) : (
-          <div className="bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl p-12 text-center">
-            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <CheckSquare className="w-8 h-8 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Belum Ada Tugas</h3>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">Klik tombol "Tambah Tugas" untuk mulai mencatat tugas sekolahmu.</p>
-          </div>
-        )}
-      </div>
-    </div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }

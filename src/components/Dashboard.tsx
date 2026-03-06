@@ -17,16 +17,53 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
   const currentDay = format(new Date(), 'EEEE');
   const todaySchedule = schedule.filter(item => item.day === currentDay);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
       <header>
-        <h2 className="text-3xl font-display font-bold text-slate-900 dark:text-white">Selamat Datang! 👋</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Hari ini adalah {format(new Date(), 'EEEE, d MMMM yyyy')}</p>
+        <motion.h2 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-3xl font-display font-bold text-slate-900 dark:text-white"
+        >
+          Selamat Datang! 👋
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-slate-500 dark:text-slate-400 mt-1"
+        >
+          Hari ini adalah {format(new Date(), 'EEEE, d MMMM yyyy')}
+        </motion.p>
       </header>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
               <Clock className="w-6 h-6 text-blue-600" />
@@ -35,9 +72,13 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
           </div>
           <p className="text-3xl font-display font-bold">{pendingTasks}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">Tugas belum selesai</p>
-        </div>
+        </motion.div>
         
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
               <CheckCircle2 className="w-6 h-6 text-emerald-600" />
@@ -46,9 +87,13 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
           </div>
           <p className="text-3xl font-display font-bold">{completedTasks}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">Tugas telah selesai</p>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
               <AlertCircle className="w-6 h-6 text-amber-600" />
@@ -57,12 +102,12 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
           </div>
           <p className="text-3xl font-display font-bold">{todayTasks.length}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">Deadline hari ini</p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Deadlines */}
-        <section className="space-y-4">
+        <motion.section variants={itemVariants} className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-display font-bold">Deadline Hari Ini</h3>
             <button 
@@ -75,11 +120,13 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
           
           <div className="space-y-3">
             {todayTasks.length > 0 ? (
-              todayTasks.map(task => (
+              todayTasks.map((task, idx) => (
                 <motion.div 
                   key={task.id}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
                   className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm"
                 >
                   <div className={`w-2 h-10 rounded-full ${
@@ -102,15 +149,19 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
                 </motion.div>
               ))
             ) : (
-              <div className="bg-slate-100 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-8 text-center">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-slate-100 dark:bg-slate-900/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-8 text-center"
+              >
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Tidak ada deadline hari ini. Santai dulu! ☕</p>
-              </div>
+              </motion.div>
             )}
           </div>
-        </section>
+        </motion.section>
 
         {/* Today's Schedule */}
-        <section className="space-y-4">
+        <motion.section variants={itemVariants} className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-display font-bold">Jadwal Hari Ini</h3>
             <button 
@@ -121,16 +172,25 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
             </button>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+          <motion.div 
+            whileHover={{ scale: 1.01 }}
+            className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm"
+          >
             {todaySchedule.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {todaySchedule.map((item, idx) => (
-                  <div key={item.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <motion.div 
+                    key={item.id} 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  >
                     <span className="w-8 h-8 flex items-center justify-center bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full text-xs font-bold">
                       {idx + 1}
                     </span>
                     <span className="font-medium text-slate-800 dark:text-slate-200">{item.subject}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
@@ -138,9 +198,9 @@ export default function Dashboard({ tasks, schedule, onNavigate }: DashboardProp
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Belum ada jadwal untuk hari {currentDay}.</p>
               </div>
             )}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
       </div>
-    </div>
+    </motion.div>
   );
 }
